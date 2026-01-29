@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { saveInsightState } from '@/lib/user-state';
+import { Insight } from '@/lib/types';
+import { getInsightId, saveInsightState } from '@/lib/insight-state';
 import {
   AlertCircle,
   TrendingUp,
@@ -13,28 +14,9 @@ import {
   Clock,
 } from 'lucide-react';
 
-/**
- * Local, canonical Insight shape for this component.
- * This avoids TS resolving a stale or shadowed Insight type.
- */
-interface Insight {
-  id: string;
-  type:
-    | 'SUBSCRIPTION_PRICE_INCREASE'
-    | 'SPENDING_SPIKE'
-    | 'FREQUENCY_INCREASE'
-    | 'CATEGORY_SHIFT';
-  severity: 'high' | 'medium' | 'low';
-  message: string;
-  detail?: string;
-  data: any;
-  requiresConfirmation?: boolean;
-  confirmationPrompt?: string;
-}
-
 interface InsightActionCardProps {
   insight: Insight;
-  onAction: () => void;
+  onAction: (insightId: string) => void;
 }
 
 export default function InsightActionCard({
@@ -43,6 +25,8 @@ export default function InsightActionCard({
 }: InsightActionCardProps) {
   const [showDetails, setShowDetails] = useState(false);
   const [isActing, setIsActing] = useState(false);
+
+  const insightId = getInsightId(insight);
 
   const getIcon = () => {
     switch (insight.type) {
@@ -76,10 +60,8 @@ export default function InsightActionCard({
         ? new Date(Date.now() + 90 * 24 * 60 * 60 * 1000)
         : undefined;
 
-    // id is GUARANTEED here
-    saveInsightState(insight.id, action, snoozeUntil);
-
-    setTimeout(onAction, 300);
+    saveInsightState(insightId, action, snoozeUntil);
+    setTimeout(() => onAction(insightId), 300);
   };
 
   return (
@@ -102,22 +84,13 @@ export default function InsightActionCard({
                 {insight.confirmationPrompt}
               </p>
               <div className="flex gap-2">
-                <button
-                  onClick={() => handleAction('confirmed')}
-                  className="flex items-center gap-2 px-4 py-2 bg-white border-2 border-current/30 rounded-lg text-sm font-medium hover:bg-current/10"
-                >
+                <button onClick={() => handleAction('confirmed')}>
                   <Check className="w-4 h-4" /> Yes
                 </button>
-                <button
-                  onClick={() => handleAction('snoozed')}
-                  className="flex items-center gap-2 px-4 py-2 bg-white border-2 border-current/30 rounded-lg text-sm font-medium hover:bg-current/10"
-                >
+                <button onClick={() => handleAction('snoozed')}>
                   <Clock className="w-4 h-4" /> Later
                 </button>
-                <button
-                  onClick={() => handleAction('dismissed')}
-                  className="flex items-center gap-2 px-4 py-2 bg-white border-2 border-current/30 rounded-lg text-sm font-medium hover:bg-current/10"
-                >
+                <button onClick={() => handleAction('dismissed')}>
                   <X className="w-4 h-4" /> Cancel
                 </button>
               </div>

@@ -10,7 +10,7 @@ interface InsightFeedProps {
 }
 
 export default function InsightFeed({ initialInsights }: InsightFeedProps) {
-  const [insights, setInsights] = useState(initialInsights);
+  const [insights, setInsights] = useState<Insight[]>(initialInsights);
 
   const handleAction = (insightId: string) => {
     setInsights(prev =>
@@ -32,7 +32,7 @@ export default function InsightFeed({ initialInsights }: InsightFeedProps) {
         <InsightActionCard
           key={getInsightId(insight)}
           insight={insight}
-          onAction={() => handleAction(getInsightId(insight))}
+          onAction={handleAction}
         />
       ))}
     </div>
