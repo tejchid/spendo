@@ -63,7 +63,9 @@ export default function CategoryChart({ transactions }: CategoryChartProps) {
                 border: '1px solid #334155',
                 borderRadius: '8px',
               }}
-              formatter={(value: number) => `$${value.toFixed(2)}`}
+              formatter={(value?: number) =>
+  value !== undefined ? `$${value.toFixed(2)}` : ''
+}
             />
           </PieChart>
         </ResponsiveContainer>
