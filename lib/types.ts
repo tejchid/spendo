@@ -8,10 +8,18 @@ export interface Transaction {
   source: 'DEMO' | 'UPLOAD';
 }
 
+export type InsightType =
+  | 'SUBSCRIPTION_PRICE_INCREASE'
+  | 'SPENDING_SPIKE'
+  | 'FREQUENCY_INCREASE'
+  | 'CATEGORY_SHIFT';
+
 export interface Insight {
-  type: 'SUBSCRIPTION_PRICE_INCREASE' | 'SPENDING_SPIKE' | 'FREQUENCY_INCREASE' | 'CATEGORY_SHIFT';
+  type: InsightType;
   severity: 'high' | 'medium' | 'low';
   message: string;
   detail?: string;
   data: any;
+  requiresConfirmation?: boolean;
+  confirmationPrompt?: string;
 }

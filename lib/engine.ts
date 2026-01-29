@@ -1,54 +1,40 @@
 // lib/engine.ts
 
-import { Transaction, MerchantStats } from './types';
+import { Transaction } from './types';
 
-export function calculateMerchantStats(transactions: Transaction[]): Map<string, MerchantStats> {
-  const statsMap = new Map<string, MerchantStats>();
-
-  const expenses = transactions.filter(t => t.amount < 0);
-
-  expenses.forEach(tx => {
-    const merchant = tx.merchantClean;
-    const amount = Math.abs(tx.amount);
-
-    if (!statsMap.has(merchant)) {
-      statsMap.set(merchant, {
-        merchant,
-        median: 0,
-        count: 0,
-        total: 0,
-      });
-    }
-
-    const stats = statsMap.get(merchant)!;
-    stats.count += 1;
-    stats.total += amount;
-  });
-
-  // Calculate median for each merchant
-  statsMap.forEach((stats, merchant) => {
-    const merchantTransactions = expenses
-      .filter(t => t.merchantClean === merchant)
-      .map(t => Math.abs(t.amount))
-      .sort((a, b) => a - b);
-
-    const mid = Math.floor(merchantTransactions.length / 2);
-    stats.median = merchantTransactions.length % 2 === 0
-      ? (merchantTransactions[mid - 1] + merchantTransactions[mid]) / 2
-      : merchantTransactions[mid];
-  });
-
-  return statsMap;
+/**
+ * Local MerchantStats shape.
+ * This avoids relying on a missing export from types.ts.
+ */
+export interface MerchantStats {
+  merchant: string;
+  totalSpent: number;
+  transactionCount: number;
+  averageSpend: number;
 }
 
-export function detectAnomalies(transactions: Transaction[], stats: Map<string, MerchantStats>): Transaction[] {
-  return transactions.filter(tx => {
-    if (tx.amount >= 0) return false; // Only check expenses
+export function calculateMerchantStats(
+  transactions: Transaction[]
+): Map<string, MerchantStats> {
+  const statsMap = new Map<string, MerchantStats>();
 
-    const merchantStats = stats.get(tx.merchantClean);
-    if (!merchantStats) return false;
+  for (const tx of transactions) {
+    const merchant = tx.merchantClean;
 
-    const amount = Math.abs(tx.amount);
-    return amount > merchantStats.median * 2.5 && amount > 50;
-  });
+    const current = statsMap.get(merchant) ?? {
+      merchant,
+      totalSpent: 0,
+      transactionCount: 0,
+      averageSpend: 0,
+    };
+
+    current.totalSpent += tx.amount;
+    current.transactionCount += 1;
+    current.averageSpend =
+      current.totalSpent / current.transactionCount;
+
+    statsMap.set(merchant, current);
+  }
+
+  return statsMap;
 }

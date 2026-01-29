@@ -1,66 +1,58 @@
-// components/InsightCard.tsx
-
 'use client';
 
 import { Insight } from '@/lib/types';
-import { AlertCircle, TrendingUp, Info } from 'lucide-react';
-import { useState } from 'react';
+import {
+  AlertCircle,
+  TrendingUp,
+  Repeat,
+  BarChart3,
+} from 'lucide-react';
 
-export default function InsightCard({ insight }: { insight: Insight }) {
-  const [showWhy, setShowWhy] = useState(false);
+interface InsightCardProps {
+  insight: Insight;
+  children?: React.ReactNode;
+}
 
+export default function InsightCard({ insight, children }: InsightCardProps) {
   const getIcon = () => {
     switch (insight.type) {
-      case 'SPIKE':
+      case 'SUBSCRIPTION_PRICE_INCREASE':
         return <AlertCircle className="w-5 h-5" />;
-      case 'FREQUENCY_CREEP':
+      case 'SPENDING_SPIKE':
         return <TrendingUp className="w-5 h-5" />;
+      case 'FREQUENCY_INCREASE':
+        return <Repeat className="w-5 h-5" />;
+      case 'CATEGORY_SHIFT':
+        return <BarChart3 className="w-5 h-5" />;
       default:
-        return <Info className="w-5 h-5" />;
+        return null;
     }
   };
 
   const getSeverityColor = () => {
     switch (insight.severity) {
       case 'high':
-        return 'bg-red-500/10 border-red-500/20 text-red-400';
+        return 'border-red-200 bg-red-50 text-red-900';
       case 'medium':
-        return 'bg-orange-500/10 border-orange-500/20 text-orange-400';
+        return 'border-orange-200 bg-orange-50 text-orange-900';
       default:
-        return 'bg-blue-500/10 border-blue-500/20 text-blue-400';
+        return 'border-blue-200 bg-blue-50 text-blue-900';
     }
   };
 
   return (
-    <div className={`border rounded-xl p-4 ${getSeverityColor()}`}>
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex items-start gap-3 flex-1">
-          <div className="mt-0.5">{getIcon()}</div>
-          <div className="flex-1">
-            <p className="text-sm leading-relaxed">{insight.message}</p>
-          </div>
-        </div>
-        
-        <button
-          onClick={() => setShowWhy(!showWhy)}
-          className="text-xs opacity-60 hover:opacity-100 transition-opacity"
-        >
-          Why?
-        </button>
-      </div>
+    <div className={`border-2 rounded-xl p-6 ${getSeverityColor()}`}>
+      <div className="flex items-start gap-4">
+        <div className="mt-1 flex-shrink-0">{getIcon()}</div>
 
-      {showWhy && (
-        <div className="mt-3 pt-3 border-t border-current/20 text-xs opacity-80">
-          <p className="font-mono">
-            {insight.type === 'SPIKE' && insight.data.median && (
-              <>Median: ${insight.data.median.toFixed(2)} | Current: ${insight.data.amount.toFixed(2)} | Threshold: 2.5x</>
-            )}
-            {insight.type === 'FREQUENCY_CREEP' && (
-              <>Visits: {insight.data.count} | Total: ${insight.data.total.toFixed(2)}</>
-            )}
+        <div className="flex-1 min-w-0">
+          <p className="text-base font-medium leading-relaxed">
+            {insight.message}
           </p>
+
+          {children && <div className="mt-3">{children}</div>}
         </div>
-      )}
+      </div>
     </div>
   );
 }
