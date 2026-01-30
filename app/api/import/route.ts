@@ -27,7 +27,6 @@ export async function POST(req: Request) {
     data: insights.map(i => ({
       type: i.type,
       message: i.message,
-      month: i.month,
     })),
   });
 
