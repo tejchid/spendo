@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Insight } from '@/lib/types';
-import { getInsightId, saveInsightState } from '@/lib/insight-state';
+import { getInsightId, saveInsightState, InsightStatus } from '@/lib/insight-state';
 import {
   AlertCircle,
   TrendingUp,
@@ -18,6 +18,14 @@ interface InsightActionCardProps {
   insight: Insight;
   onAction: (insightId: string) => void;
 }
+
+type UIAction = 'confirmed' | 'dismissed' | 'snoozed';
+
+const ACTION_TO_STATUS: Record<UIAction, InsightStatus> = {
+  confirmed: 'acknowledged',
+  dismissed: 'hidden',
+  snoozed: 'snoozed',
+};
 
 export default function InsightActionCard({
   insight,
@@ -52,7 +60,7 @@ export default function InsightActionCard({
     }
   };
 
-  const handleAction = (action: 'confirmed' | 'dismissed' | 'snoozed') => {
+  const handleAction = (action: UIAction) => {
     setIsActing(true);
 
     const snoozeUntil =
@@ -60,7 +68,9 @@ export default function InsightActionCard({
         ? new Date(Date.now() + 90 * 24 * 60 * 60 * 1000)
         : undefined;
 
-    saveInsightState(insightId, action, snoozeUntil);
+    const status = ACTION_TO_STATUS[action];
+
+    saveInsightState(insightId, status, snoozeUntil);
     setTimeout(() => onAction(insightId), 300);
   };
 
