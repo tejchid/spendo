@@ -6,3 +6,17 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model Transaction {
+  id        String   @id @default(cuid())
+  amount    Float
+  merchant  String?
+  createdAt DateTime @default(now())
+}
+
+model Insight {
+  id        String   @id @default(cuid())
+  type      String
+  message   String
+  createdAt DateTime @default(now())
+}
