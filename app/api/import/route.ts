@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/server/prisma';
 import { parseCSV } from '@/lib/ingestor';
-import { generateInsights } from '@/lib/insights-engine';
+import { generateRealInsights } from '@/lib/insights-engine';
 
 export async function POST(req: Request) {
   const { csvText } = await req.json();
@@ -19,7 +19,7 @@ export async function POST(req: Request) {
     })),
   });
 
-  const insights = generateInsights(transactions);
+  const insights = generateRealInsights(transactions);
 
   await prisma.insight.createMany({
     data: insights.map(i => ({
