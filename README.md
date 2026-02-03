@@ -27,8 +27,8 @@ A privacy-first transaction analysis platform that detects behavioral spending p
 
 ```bash
 # Clone the repository
-git clone https://github.com/tejchid/spendo-insights.git
-cd spendo-insights
+git clone https://github.com/tejchid/spendo.git
+cd spendo
 
 # Install dependencies
 npm install
